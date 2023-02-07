@@ -1,0 +1,8 @@
+https://mmazzarolo.com/blog/2021-08-12-building-an-electron-application-using-create-react-app/
+
+1.) git clone repo
+2.) npm install --save-dev create-react-app
+3.) npx create-react-app castdeck-ui
+4.) cd castdeck-ui
+5.) yarn add -D concurrently cross-env electron electron-builder electronmon wait-on
+5.) npm install --save bonjour-service chromecast-client 

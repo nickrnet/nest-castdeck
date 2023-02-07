@@ -1,2 +1,2 @@
 # nest-castdeck
-Chromecast StreamDeck-like to a Nest Hub
+StreamDeck-like Chromecast to a Nest Hub via Electron.

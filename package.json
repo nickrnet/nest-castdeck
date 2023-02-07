@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "create-react-app": "^5.0.1"
+  },
+  "dependencies": {
+    "electron": "^23.0.0"
+  }
+}
