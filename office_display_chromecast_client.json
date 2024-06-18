@@ -1,0 +1,33 @@
+{
+    "value": {
+        "isOk": true,
+        "value": {
+            "applications": [
+                {
+                    "appId": "E8C28D3C",
+                    "displayName": "Backdrop",
+                    "iconUrl": "",
+                    "isIdleScreen": true,
+                    "launchedFromCloud": false,
+                    "namespaces": [
+                        {
+                            "name": "urn:x-cast:com.google.cast.sse"
+                        },
+                        {
+                            "name": "urn:x-cast:com.google.cast.cac"
+                        }
+                    ],
+                    "sessionId": "069a3233-94f0-4def-b34e-8e648c550ab0",
+                    "statusText": "",
+                    "transportId": "069a3233-94f0-4def-b34e-8e648c550ab0"
+                }
+            ],
+            "volume": {
+                "controlType": "ATTENUATION",
+                "level": 0.45000001788139343,
+                "muted": false,
+                "stepInterval": 0.05000000074505806
+            }
+        }
+    }
+}

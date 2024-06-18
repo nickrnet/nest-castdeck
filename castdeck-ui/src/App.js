@@ -1,55 +1,90 @@
 import React, { useEffect, useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+import AppBar from '@mui/material/AppBar';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Toolbar from '@mui/material/Toolbar';
+
+import DeviceListMenu from './DeviceListMenu.js';
+
 import { channels } from './electron/channels.js';
 
+
 function App() {
-  const { ipcRenderer } = window.require('electron');
-  const [ castDevices, setCastDevices ] = useState([]);
+  const [castDevices, setCastDevices] = useState([]);
+  const [scanDevices, setScanDevices] = useState(false);
+  const [selectedDeviceId, setSelectedDeviceId] = useState(''); // The selected device ID
+  const [casting, setCasting] = useState(false);
 
   useEffect(() => {
-    // Listen for the event
-    ipcRenderer.on(channels.GET_DEVICES, (event, arg) => {
-      // Find the device in the list
-      // If it's not there, add it
-      console.log(`Notified about: ${JSON.stringify(arg, null, 4)}`);
-      if (!castDevices.find(device => device.txt.id === arg.txt.id)) {
-        setCastDevices([...castDevices, arg]);
-      }
-    });
-    // Clean the listener after the component is dismounted
-    // return () => {
-    //   ipcRenderer.removeAllListeners();
-    // };
+    return function cleanup() {
+      window.api.deregisterFetchedDevices();
+      window.api.deregisterNoOp();
+    }
   }, []);
 
-  const getDevices = () => {
-    ipcRenderer.send(channels.FETCH_DEVICES, 'dammit');
+
+  const fetchDevices = () => {
+    // Ask the main process to fetch available Chromecast devices.
+    if (!scanDevices) {
+      console.log('Asking for devices from main process...');
+      window.api.fetchDevices();
+    }
+  };
+
+  window.api.onFetchedDevices((_event, chromecastDevices) => {
+    // Update with the list of fetched Chromecast devices.
+    console.log(`Got ${chromecastDevices.length} devices.`);
+    setCastDevices(chromecastDevices.sort());
+    setScanDevices(false);
+    _event.sender.send(channels.DELIVERED_MESSAGE, true);
+    window.api.deregisterFetchedDevices();
+  });
+
+  const notifySelectedDevice = (chromecastDeviceId) => {
+    window.api.selectedDevice(chromecastDeviceId);
+    setSelectedDeviceId(chromecastDeviceId);
+  }
+
+  window.api.onNoop((_event, value) => {
+    console.log('Got event with nothing to do.');
+    _event.sender.send(channels.DELIVERED_MESSAGE, true);
+    window.api.deregisterNoOp();
+  });
+
+  const clearDeviceList = () => {
+    setSelectedDeviceId('');
+    setCasting(false);
+    setCastDevices([]);
+    setScanDevices(true);
+    fetchDevices();
+  }
+
+  const startCast = () => {
+    if (selectedDeviceId !== '') {
+      window.api.startChromecast("go");
+      setCasting(true);
+    }
+  };
+
+  const endCast = () => {
+    if (casting) {
+      window.api.stopChromecast("done");
+      setCasting(false);
+    }
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <p>
-          <code>{castDevices && castDevices.length ? JSON.stringify(castDevices[0], null, 4) : 'Nuthin'}</code>
-        </p>
-        <p>
-          <button onClick={getDevices}>Reload</button>
-        </p>
-      </header>
-    </div>
+    <AppBar position="static">
+      <Toolbar >
+          <DeviceListMenu devices={castDevices} selectedDeviceId={selectedDeviceId} setSelectedDeviceId={ notifySelectedDevice } casting={casting} />
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" disabled={!selectedDeviceId || casting} disableElevation onClick={ startCast }>Cast</Button>
+            <Button variant="contained" disabled={!selectedDeviceId || !casting} disableElevation onClick={ endCast }>End Cast</Button>
+            <Button variant="contained" disabled={scanDevices} disableElevation onClick={ clearDeviceList }>Refresh Chromecast Device List</Button>
+          </Stack>
+      </Toolbar>
+    </AppBar>
   );
 }
 

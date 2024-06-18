@@ -12,10 +12,12 @@
                 "<node_internals>/**"
             ],
             "env": {
-                "ELECTRON_START_URL": "http://localhost:3005"
+                "ELECTRON_START_URL": "http://localhost:3005",
+                "ELECTRON_ENABLE_STACK_DUMPING": "true",
             },
             "cwd": "${workspaceFolder}/castdeck-ui",
-            "runtimeExecutable": "${workspaceFolder}/castdeck-ui/node_modules/.bin/electron",
+            "program": "${workspaceFolder}/castdeck-ui/node_modules/.bin/electron",
+            "runtimeExecutable": "${env:HOME}/.nvm/versions/node/v18.14.1/bin/node",
             "args" : ["."],
             "outputCapture": "std"
         }
